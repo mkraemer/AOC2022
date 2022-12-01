@@ -1,6 +1,5 @@
 use itertools::Itertools;
 
-#[derive(Debug)]
 struct Elf {
     calories: Vec<i32>,
 }
