@@ -10,23 +10,13 @@ impl Elf {
     }
 }
 
-fn get_calories_of_most_packed_elf (elves: &[Elf]) -> i32 {
-    elves
-        .iter()
-        .map(|elf| elf.calories.iter().sum())
-        .sorted()
-        .rev()
-        .next()
-        .unwrap()
-}
-
-fn get_calories_of_three_most_packed_elves (elves: &[Elf]) -> i32 {
+fn get_calories_of_nth_most_packed_elves (elves: &[Elf], num: usize) -> i32 {
     elves
         .iter()
         .map(|elf| elf.calories.iter().sum::<i32>())
         .sorted()
         .rev()
-        .take(3)
+        .take(num)
         .sum()
 }
 
@@ -39,7 +29,7 @@ fn main() {
 
     println!(
         "Part 1: {}\nPart 2: {}",
-        get_calories_of_most_packed_elf(&elves),
-        get_calories_of_three_most_packed_elves(&elves)
+        get_calories_of_nth_most_packed_elves(&elves, 1),
+        get_calories_of_nth_most_packed_elves(&elves, 3)
         );
 }
