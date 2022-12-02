@@ -1,4 +1,7 @@
-#[derive(Debug)]
+const WIN: usize = 6;
+const LOSS: usize = 0;
+const DRAW: usize = 3;
+
 enum Hand {
     Rock,
     Paper,
@@ -8,9 +11,9 @@ enum Hand {
 impl Hand {
     fn get_score(&self) -> usize {
         match self {
-            Self::Rock => 1,
-            Self::Paper => 2,
-            Self::Scissors => 3,
+            Self::Rock => 0,
+            Self::Paper => 1,
+            Self::Scissors => 2,
         }
     }
 
@@ -25,7 +28,6 @@ impl Hand {
     }
 }
 
-#[derive(Debug)]
 struct Round {
     opponent: Hand,
     us: Hand,
@@ -44,33 +46,16 @@ impl Round {
     }
 
     fn get_outcome_score(&self) -> usize {
-        match self.us {
-            Hand::Rock => {
-                match self.opponent {
-                    Hand::Rock => 3,
-                    Hand::Paper => 0,
-                    Hand::Scissors => 6,
-                }
-            },
-            Hand::Paper => {
-                match self.opponent {
-                    Hand::Rock => 6,
-                    Hand::Paper => 3,
-                    Hand::Scissors => 0,
-                }
-            },
-            Hand::Scissors => {
-                match self.opponent {
-                    Hand::Rock => 0,
-                    Hand::Paper => 6,
-                    Hand::Scissors => 3,
-                }
-            },
+        match (3 + self.us.get_score() - self.opponent.get_score()) % 3{
+            0 => DRAW,
+            1 => WIN,
+            2 => LOSS,
+            _ => unreachable!()
         }
     }
 
     fn get_hand_score(&self) -> usize {
-        self.us.get_score()
+        self.us.get_score() + 1
     }
 }
 
