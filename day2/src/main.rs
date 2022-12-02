@@ -1,61 +1,91 @@
-const WIN: usize = 6;
-const LOSS: usize = 0;
-const DRAW: usize = 3;
+use int_enum::IntEnum;
 
+#[repr(usize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, IntEnum)]
 enum Hand {
-    Rock,
-    Paper,
-    Scissors,
+    Rock = 0,
+    Paper = 1,
+    Scissors = 2,
 }
 
 impl Hand {
-    fn get_score(&self) -> usize {
-        match self {
-            Self::Rock => 0,
-            Self::Paper => 1,
-            Self::Scissors => 2,
-        }
+    fn get_beating_hand(&self, outcome: Outcome) -> Self {
+        Hand::from_int((self.int_value() + outcome.int_value()) % 3).unwrap()
     }
 
-    fn from_char(s: char) -> Option<Self> {
+    fn from_char(s: char) -> Self {
         match s {
-            'A' | 'X' => Some(Self::Rock),
-            'B' | 'Y' => Some(Self::Paper),
-            'C' | 'Z' => Some(Self::Scissors),
-            _ => None,
+            'A' | 'X' => Self::Rock,
+            'B' | 'Y' => Self::Paper,
+            'C' | 'Z' => Self::Scissors,
+            _ => unreachable!(),
         }
-
     }
 }
 
+#[repr(usize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, IntEnum)]
+enum Outcome {
+    Draw = 0,
+    Win = 1,
+    Lose = 2,
+}
+
+impl Outcome {
+    fn from_char(s: char) -> Self {
+        match s {
+            'X' => Outcome::Lose,
+            'Y' => Outcome::Draw,
+            'Z' => Outcome::Win,
+            _ => unreachable!()
+        }
+    }
+
+    fn get_score(&self) -> usize {
+        match self {
+            Outcome::Lose => 0,
+            Outcome::Draw => 3,
+            Outcome::Win => 6,
+        }
+    }
+}
+
+#[derive(Debug)]
 struct Round {
     opponent: Hand,
     us: Hand,
 }
 
 impl Round {
-    fn from_string(s: &str) -> Self {
+    fn from_opponend_and_outcome(s: &str) -> Self {
+        let opponent = Hand::from_char(s.as_bytes()[0] as char);
+        let outcome = Outcome::from_char(s.as_bytes()[2] as char);
+
+        let chosen_hand = opponent.get_beating_hand(outcome);
+
         Round {
-            opponent: Hand::from_char(s.as_bytes()[0] as char).unwrap(),
-            us: Hand::from_char(s.as_bytes()[2] as char).unwrap()
+            opponent,
+            us: chosen_hand,
+        }
+    }
+
+    fn from_opponent_and_us(s: &str) -> Self {
+        Round {
+            opponent: Hand::from_char(s.as_bytes()[0] as char),
+            us: Hand::from_char(s.as_bytes()[2] as char)
         }
     }
 
     fn get_total_score(&self) -> usize {
-        self.get_outcome_score() + self.get_hand_score()
+        self.outcome().get_score() + self.get_hand_score()
     }
 
-    fn get_outcome_score(&self) -> usize {
-        match (3 + self.us.get_score() - self.opponent.get_score()) % 3{
-            0 => DRAW,
-            1 => WIN,
-            2 => LOSS,
-            _ => unreachable!()
-        }
+    fn outcome(&self) -> Outcome {
+        Outcome::from_int((3 + self.us as usize - self.opponent as usize) % 3).unwrap()
     }
 
     fn get_hand_score(&self) -> usize {
-        self.us.get_score() + 1
+        self.us as usize + 1
     }
 }
 
@@ -64,10 +94,17 @@ fn main() {
 
     let part1: usize = input_str
         .lines()
-        .map(Round::from_string)
+        .map(Round::from_opponent_and_us)
+        .map(|r| r.get_total_score())
+        .sum();
+
+    let part2: usize = input_str
+        .lines()
+        .map(Round::from_opponend_and_outcome)
         .map(|r| r.get_total_score())
         .sum();
     
-    println!("Part1: {}", part1);
+    println!("Part1: {}\nPart2: {}", part1, part2);
     assert!(part1 == 13221);
+    assert!(part2 == 13131);
 }
