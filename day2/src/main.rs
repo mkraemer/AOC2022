@@ -9,7 +9,7 @@ enum Hand {
 }
 
 impl Hand {
-    fn get_beating_hand(&self, outcome: Outcome) -> Self {
+    fn beating_hand(&self, outcome: Outcome) -> Self {
         Hand::from_int((self.int_value() + outcome.int_value()) % 3).unwrap()
     }
 
@@ -41,7 +41,7 @@ impl Outcome {
         }
     }
 
-    fn get_score(&self) -> usize {
+    fn score(&self) -> usize {
         match self {
             Outcome::Lose => 0,
             Outcome::Draw => 3,
@@ -61,7 +61,7 @@ impl Round {
         let opponent = Hand::from_char(s.as_bytes()[0] as char);
         let outcome = Outcome::from_char(s.as_bytes()[2] as char);
 
-        let chosen_hand = opponent.get_beating_hand(outcome);
+        let chosen_hand = opponent.beating_hand(outcome);
 
         Round {
             opponent,
@@ -76,16 +76,14 @@ impl Round {
         }
     }
 
-    fn get_total_score(&self) -> usize {
-        self.outcome().get_score() + self.get_hand_score()
-    }
+    fn total_score(&self) -> usize {
+        let outcome_score = Outcome::from_int((3 + self.us.int_value() - self.opponent.int_value()) % 3)
+            .unwrap()
+            .score();
 
-    fn outcome(&self) -> Outcome {
-        Outcome::from_int((3 + self.us as usize - self.opponent as usize) % 3).unwrap()
-    }
+        let hand_score = self.us.int_value() + 1;
 
-    fn get_hand_score(&self) -> usize {
-        self.us as usize + 1
+        outcome_score + hand_score
     }
 }
 
@@ -95,13 +93,13 @@ fn main() {
     let part1: usize = input_str
         .lines()
         .map(Round::from_opponent_and_us)
-        .map(|r| r.get_total_score())
+        .map(|r| r.total_score())
         .sum();
 
     let part2: usize = input_str
         .lines()
         .map(Round::from_opponend_and_outcome)
-        .map(|r| r.get_total_score())
+        .map(|r| r.total_score())
         .sum();
     
     println!("Part1: {}\nPart2: {}", part1, part2);
