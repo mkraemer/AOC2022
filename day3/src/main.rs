@@ -1,44 +1,38 @@
 use byte_set::ByteSet;
-
-#[derive(Debug)]
-struct Rucksack {
-    first_compartment: ByteSet,
-    second_compartment: ByteSet,
-}
-
-impl Rucksack {
-    fn from_string(s: &str) -> Self {
-        let (first_compartment, second_compartment) = s.split_at(s.len() / 2);
-
-        Rucksack {
-            first_compartment: str_to_set(first_compartment),
-            second_compartment: str_to_set(second_compartment),
-        }
-    }
-
-    fn score(&self) -> u8 {
-        let shared = self.first_compartment.intersection(self.second_compartment).first().unwrap();
-
-        match shared {
-            b'a'..=b'z' => (shared - b'a') + 1,
-            b'A'..=b'Z' => (shared - b'A') + 1 + 26,
-            _ => panic!("Only a-z and A-Z allowed")
-        }
-    }
-}
+use itertools::Itertools;
 
 fn main() {
     let input_str = include_str!("../input");
 
     let part1: u32 = input_str
         .lines()
-        .map(Rucksack::from_string)
-        .map(|r| r.score() as u32)
+        .filter_map(|l| {
+            let (s1, s2) = l.split_at(l.len() / 2);
+
+            let bm1 = str_to_set(s1);
+            let bm2 = str_to_set(s2);
+
+            bm1.intersection(bm2).first()
+        })
+        .map(|r| score(r) as u32)
         .sum()
         ;
 
-    println!("{:?}", part1);
+
+    let part2: u32 = input_str
+        .lines()
+        .map(str_to_set)
+        .tuples()
+        .filter_map(|(rucksack1, rucksack2, rucksack3)| {
+            rucksack1.intersection(rucksack2).intersection(rucksack3).first()
+        })
+        .map(|r| score(r) as u32)
+        .sum()
+        ;
+
+    println!("Part1: {:?}\nPart2: {}", part1, part2);
     assert!(part1 == 8298);
+    assert!(part2 == 2708);
 }
 
 fn str_to_set(s: &str) -> ByteSet {
@@ -48,4 +42,12 @@ fn str_to_set(s: &str) -> ByteSet {
     }
 
     set
+}
+
+fn score(b: u8) -> u8 {
+    match b {
+        b'a'..=b'z' => (b - b'a') + 1,
+        b'A'..=b'Z' => (b - b'A') + 1 + 26,
+        _ => panic!("Only a-z and A-Z allowed")
+    }
 }
