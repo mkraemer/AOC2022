@@ -51,4 +51,5 @@ fn main() {
 
     println!("Part1: {}\nPart2: {}", part1, part2);
     assert!(part1 == 305);
+    assert!(part2 == 811);
 }
