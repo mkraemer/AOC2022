@@ -31,11 +31,8 @@ fn main() {
     let part1: usize = input_str
         .lines()
         .filter_map(fully_contains)
-        //.map(|s| {
-        //    println!("{:?}", s);
-        //    s
-        //})
         .count();
 
     println!("Part1: {:?}", part1);
+    assert!(part1 == 305);
 }
