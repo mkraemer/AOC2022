@@ -10,7 +10,7 @@ fn build_range_from_start_end(start: u8, end: u8) -> ByteSet {
     set
 }
 
-fn fully_contains(s: &str) -> Option<()> {
+fn build_ranges_from_string(s: &str) -> (ByteSet, ByteSet) {
     let parts: Vec<&str> = s.split(['-', ',']).collect();
 
     let first_start = parts[0].parse::<u8>().unwrap();
@@ -20,20 +20,18 @@ fn fully_contains(s: &str) -> Option<()> {
 
     let first = build_range_from_start_end(first_start, first_end);
     let second = build_range_from_start_end(second_start, second_end);
+
+    (first, second)
+}
+
+fn fully_contains(s: &str) -> Option<()> {
+    let (first, second) = build_ranges_from_string(s);
 
     (first.is_subset(&second) || second.is_subset(&first)).then_some(())
 }
 
 fn overlaps(s: &str) -> Option<()> {
-    let parts: Vec<&str> = s.split(['-', ',']).collect();
-
-    let first_start = parts[0].parse::<u8>().unwrap();
-    let first_end = parts[1].parse::<u8>().unwrap();
-    let second_start = parts[2].parse::<u8>().unwrap();
-    let second_end = parts[3].parse::<u8>().unwrap();
-
-    let first = build_range_from_start_end(first_start, first_end);
-    let second = build_range_from_start_end(second_start, second_end);
+    let (first, second) = build_ranges_from_string(s);
 
     first.contains_any(&second).then_some(())
 }
