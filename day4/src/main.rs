@@ -24,6 +24,19 @@ fn fully_contains(s: &str) -> Option<()> {
     (first.is_subset(&second) || second.is_subset(&first)).then_some(())
 }
 
+fn overlaps(s: &str) -> Option<()> {
+    let parts: Vec<&str> = s.split(['-', ',']).collect();
+
+    let first_start = parts[0].parse::<u8>().unwrap();
+    let first_end = parts[1].parse::<u8>().unwrap();
+    let second_start = parts[2].parse::<u8>().unwrap();
+    let second_end = parts[3].parse::<u8>().unwrap();
+
+    let first = build_range_from_start_end(first_start, first_end);
+    let second = build_range_from_start_end(second_start, second_end);
+
+    first.contains_any(&second).then_some(())
+}
 
 fn main() {
     let input_str = include_str!("../input");
@@ -33,6 +46,11 @@ fn main() {
         .filter_map(fully_contains)
         .count();
 
-    println!("Part1: {:?}", part1);
+    let part2: usize = input_str
+        .lines()
+        .filter_map(overlaps)
+        .count();
+
+    println!("Part1: {}\nPart2: {}", part1, part2);
     assert!(part1 == 305);
 }
