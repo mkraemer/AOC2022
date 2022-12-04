@@ -3,7 +3,7 @@ use byte_set::ByteSet;
 fn build_range_from_start_end(start: u8, end: u8) -> ByteSet {
     let mut set = ByteSet::new();
 
-    for n in start..end {
+    for n in start..end + 1 {
         set.insert(n);
     }
 
