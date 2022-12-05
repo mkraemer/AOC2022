@@ -50,10 +50,23 @@ impl Move {
     }
 }
 
-fn apply_move(stacks: &mut HashMap<i8, Vec<char>>, mov: &Move) {
+fn apply_move_each(stacks: &mut HashMap<i8, Vec<char>>, mov: &Move) {
     for _i in 0..mov.quantity {
         let crate_content = stacks.get_mut(&(mov.from)).unwrap().pop().unwrap();
         stacks.get_mut(&(mov.to)).unwrap().push(crate_content);
+    }
+}
+
+fn apply_move_multiple(stacks: &mut HashMap<i8, Vec<char>>, mov: &Move) {
+    let mut moved_crates: Vec<char> = Vec::new();
+
+    for _i in 0..mov.quantity {
+        let crate_content = stacks.get_mut(&(mov.from)).unwrap().pop().unwrap();
+        moved_crates.push(crate_content);
+    }
+
+    for _i in 0..mov.quantity {
+        stacks.get_mut(&(mov.to)).unwrap().push(moved_crates.pop().unwrap());
     }
 }
 
@@ -72,12 +85,16 @@ fn main() {
     let moves = move_desc.lines().map(Move::from_string);
 
     let mut stacks_part_1 = build_initial_stacks(stack_desc);
+    let mut stacks_part_2 = stacks_part_1.clone();
     for mov in moves {
-        apply_move(&mut stacks_part_1, &mov);
+        apply_move_each(&mut stacks_part_1, &mov);
+        apply_move_multiple(&mut stacks_part_2, &mov);
     }
 
     let part1 = get_top_crates(&stacks_part_1);
+    let part2 = get_top_crates(&stacks_part_2);
 
-    println!("{}", part1);
+    println!("{}\n{}", part1, part2);
     assert!(part1 == "CFFHVVHNC");
+    assert!(part2 == "FSZWBPTBG");
 }
