@@ -26,15 +26,12 @@ fn build_initial_stacks(s: &str) -> HashMap<i8, Vec<char>> {
                 ' ' => (),
                 _ => unreachable!(),
             }
-
-
         }
     }
 
     stacks
 }
 
-#[derive(Debug)]
 struct Move {
     from: i8,
     to: i8,
@@ -53,34 +50,34 @@ impl Move {
     }
 }
 
-fn apply_move(stacks: &mut HashMap<i8, Vec<char>>, mov: Move) {
+fn apply_move(stacks: &mut HashMap<i8, Vec<char>>, mov: &Move) {
     for _i in 0..mov.quantity {
-        
         let crate_content = stacks.get_mut(&(mov.from)).unwrap().pop().unwrap();
         stacks.get_mut(&(mov.to)).unwrap().push(crate_content);
     }
 }
 
-fn main() {
-    let input_str = include_str!("../input");
-
-    if let Some((stack_desc, move_desc)) = input_str.split_once("\n\n") {
-        let mut stacks = build_initial_stacks(stack_desc);
-
-        let moves = move_desc.lines().map(Move::from_string);
-
-        for mov in moves {
-            apply_move(&mut stacks, mov);
-        }
-
-        let mut part1 = "".to_owned();
-        for index in 1..stacks.len() + 1 {
-            let crates = stacks.get(&(index as i8)).unwrap();
-            part1.push(crates[crates.len() - 1]);
-
-        }
-        
-        println!("{}", part1);
-        assert!(part1 == "CFFHVVHNC");
+fn get_top_crates(stacks: &HashMap<i8, Vec<char>>) -> String {
+    let mut s = "".to_owned();
+    for index in 1..stacks.len() + 1 {
+        let crates = stacks.get(&(index as i8)).unwrap();
+        s.push(crates[crates.len() - 1]);
     }
+
+    s
+}
+
+fn main() {
+    let (stack_desc, move_desc) = include_str!("../input").split_once("\n\n").unwrap();
+    let moves = move_desc.lines().map(Move::from_string);
+
+    let mut stacks_part_1 = build_initial_stacks(stack_desc);
+    for mov in moves {
+        apply_move(&mut stacks_part_1, &mov);
+    }
+
+    let part1 = get_top_crates(&stacks_part_1);
+
+    println!("{}", part1);
+    assert!(part1 == "CFFHVVHNC");
 }
